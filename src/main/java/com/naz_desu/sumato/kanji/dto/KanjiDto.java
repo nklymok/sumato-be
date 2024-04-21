@@ -19,4 +19,5 @@ public class KanjiDto {
     private String grade;
     private Integer frequency;
     private List<String> examples;
+    private Boolean isGuessed = false;
 }

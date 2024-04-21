@@ -3,7 +3,6 @@ package com.naz_desu.sumato.kanji.review.service;
 import com.naz_desu.sumato.kanji.KanjiUtil;
 import com.naz_desu.sumato.kanji.dao.UserKanjiDao;
 import com.naz_desu.sumato.kanji.dto.KanjiDto;
-import com.naz_desu.sumato.kanji.dto.KanjiProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,8 @@ public class KanjiReviewService {
     }
 
     public List<KanjiDto> getKanjiToReview(Long userId) {
-        return userKanjiDao.getKanjiToReview(userId, Instant.now())
-                .stream().map(KanjiUtil::mapKanjiToDto)
+        return userKanjiDao.getKanjiReviews(userId, Instant.now())
+                .stream().map(KanjiUtil::mapKanjiReviewToKanjiDto)
                 .toList();
     }
 

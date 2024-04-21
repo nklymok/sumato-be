@@ -19,7 +19,7 @@ public class KanjiReview {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     private SumatoUser user;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Kanji kanji;
     private boolean isFirstReview;
     private Instant reviewedAt;

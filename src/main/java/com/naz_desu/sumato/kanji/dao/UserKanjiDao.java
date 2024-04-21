@@ -1,9 +1,7 @@
 package com.naz_desu.sumato.kanji.dao;
 
-import com.naz_desu.sumato.kanji.dto.KanjiDto;
 import com.naz_desu.sumato.kanji.entity.Kanji;
 import com.naz_desu.sumato.kanji.entity.KanjiReview;
-import com.naz_desu.sumato.kanji.dto.KanjiProjection;
 import com.naz_desu.sumato.kanji.entity.KanjiStats;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,23 +30,25 @@ public interface UserKanjiDao extends JpaRepository<KanjiReview, Long> {
             "(SELECT MAX(kr.id) FROM KanjiReview kr GROUP BY kr.kanji.id)")
     int getKanjiToReviewCount(@Param("userId") Long userId, @Param("currentTime") Instant currentTime);
 
-    @Query("SELECT kr.kanji " +
+    @Query("SELECT kr " +
             "FROM KanjiReview kr " +
-            "JOIN FETCH kr.kanji.examples ke " +
+            "JOIN FETCH kr.kanji ka " +
+            "JOIN FETCH ka.examples ke " +
             "WHERE kr.id IN " +
             "(SELECT MAX(kr.id) FROM KanjiReview kr GROUP BY kr.kanji.id) " +
             "AND kr.id IN " +
             "(SELECT kr.id FROM KanjiReview kr WHERE kr.user.id = :userId AND kr.isFirstReview = true)")
-    List<Kanji> getKanjiToStudy(@Param("userId") Long userId);
+    List<KanjiReview> getKanjiReviewsToStudy(@Param("userId") Long userId);
 
-    @Query("SELECT k.kanji " +
+    @Query("SELECT k " +
             "FROM KanjiReview k " +
-            "JOIN FETCH k.kanji.examples ke " +
+            "JOIN FETCH k.kanji ka " +
+            "JOIN FETCH ka.examples ke " +
             "WHERE k.nextReviewAt <= :currentTime " +
             "AND k.user.id = :userId AND k.isFirstReview = false " +
             "AND k.id IN " +
             "(SELECT MAX(kr.id) FROM KanjiReview kr GROUP BY kr.kanji.id)")
-    List<Kanji> getKanjiToReview(@Param("userId") Long userId, @Param("currentTime") Instant currentTime);
+    List<KanjiReview> getKanjiReviews(@Param("userId") Long userId, @Param("currentTime") Instant currentTime);
 
     @Modifying
     @Query(value = "INSERT INTO sumato_user_kanji_review (user_id, kanji_id, next_review_at, is_first_review) " +
@@ -71,7 +71,7 @@ public interface UserKanjiDao extends JpaRepository<KanjiReview, Long> {
     @Query("SELECT k.kanji " +
             "FROM KanjiReview k " +
             "WHERE k.user.id = :userId " +
-            "AND k.kanji.id = :reviewId ")
+            "AND k.id = :reviewId ")
     Kanji getKanjiFromReview(Long userId, Long reviewId);
 
     @Query("SELECT k " +
