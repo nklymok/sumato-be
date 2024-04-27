@@ -1,0 +1,29 @@
+package com.naz_desu.sumato.profile.dao;
+
+import com.naz_desu.sumato.entity.SumatoUser;
+import com.naz_desu.sumato.entity.userProfile.UserProfile;
+import com.naz_desu.sumato.profile.dto.UserProfileDTO;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface SumatoUserProfileDao extends JpaRepository<UserProfile, Long> {
+
+    @Query("SELECT " +
+            "up.user.id as id," +
+            "up.name as name," +
+            "up.dangoCount as dangoCount," +
+            "up.jlptLevel as level," +
+            "up.user.publicId as publicId  " +
+            "FROM UserProfile up WHERE up.user.id = :userId")
+    Optional<UserProfileDTO> findDtoByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE UserProfile up SET up.name = :name WHERE up.user.id = :userId")
+    void updateName(Long userId, String name);
+}

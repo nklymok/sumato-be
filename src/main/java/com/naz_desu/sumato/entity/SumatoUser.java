@@ -1,5 +1,6 @@
 package com.naz_desu.sumato.entity;
 
+import com.naz_desu.sumato.entity.userProfile.UserProfile;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
