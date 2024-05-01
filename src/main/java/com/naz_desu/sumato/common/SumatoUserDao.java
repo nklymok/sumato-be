@@ -1,6 +1,6 @@
 package com.naz_desu.sumato.common;
 
-import com.naz_desu.sumato.entity.SumatoUser;
+import com.naz_desu.sumato.common.entity.SumatoUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +19,7 @@ public interface SumatoUserDao extends JpaRepository<SumatoUser, Long> {
 
     @Query("select u.id from SumatoUser u where u.publicId = :studentId")
     Long getIdByPublicId(String studentId);
+
+    @Query("select u.id from SumatoUser u where u.authId = :authId")
+    long getIdByAuthId(String authId);
 }

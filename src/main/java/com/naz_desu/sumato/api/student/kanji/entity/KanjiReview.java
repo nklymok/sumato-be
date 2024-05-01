@@ -1,6 +1,6 @@
 package com.naz_desu.sumato.api.student.kanji.entity;
 
-import com.naz_desu.sumato.entity.SumatoUser;
+import com.naz_desu.sumato.common.entity.SumatoUser;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

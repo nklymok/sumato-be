@@ -1,4 +1,4 @@
-package com.naz_desu.sumato.config.security;
+package com.naz_desu.sumato.common.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +37,7 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain studentApiFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .securityMatcher("/student/**")
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().hasAuthority("Student")
@@ -61,8 +62,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(4)
+    public SecurityFilterChain authApiFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .securityMatcher("/auth/**")
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().permitAll()
+                )
+                .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+    }
+
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().authenticated()
                 )

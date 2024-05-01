@@ -3,9 +3,11 @@ package com.naz_desu.sumato.api.student.kanji.dao;
 import com.naz_desu.sumato.api.student.kanji.entity.Kanji;
 import com.naz_desu.sumato.api.student.kanji.entity.KanjiStats;
 import com.naz_desu.sumato.api.student.kanji.entity.KanjiReview;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
@@ -88,4 +90,10 @@ public interface UserKanjiDao extends JpaRepository<KanjiReview, Long> {
             "k.reviewedAt = :now " +
             "WHERE k.id = :reviewId")
     void updateReviewDates(Long reviewId, Instant now, Instant nextReviewAt);
+
+    @Query("SELECT k.kanji " +
+            "FROM KanjiReview k " +
+            "JOIN k.kanji " +
+            "WHERE k.user.id = :userId")
+    List<Kanji> getLastLearnedKanjis(long userId, Pageable pageable);
 }

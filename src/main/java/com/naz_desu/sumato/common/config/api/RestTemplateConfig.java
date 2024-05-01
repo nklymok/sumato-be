@@ -1,4 +1,4 @@
-package com.naz_desu.sumato.config.api;
+package com.naz_desu.sumato.common.config.api;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

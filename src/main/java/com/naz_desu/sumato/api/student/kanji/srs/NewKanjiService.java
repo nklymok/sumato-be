@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
-import static com.naz_desu.sumato.constants.SumatoConstants.MAX_NEW_KANJI_DAILY;
+import static com.naz_desu.sumato.common.constants.SumatoConstants.MAX_NEW_KANJI_DAILY;
 
 @Slf4j
 @Service

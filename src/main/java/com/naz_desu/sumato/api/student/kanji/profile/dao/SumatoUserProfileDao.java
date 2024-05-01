@@ -1,7 +1,7 @@
 package com.naz_desu.sumato.api.student.kanji.profile.dao;
 
 import com.naz_desu.sumato.api.student.kanji.profile.dto.UserProfileDTO;
-import com.naz_desu.sumato.entity.userProfile.UserProfile;
+import com.naz_desu.sumato.common.entity.userProfile.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

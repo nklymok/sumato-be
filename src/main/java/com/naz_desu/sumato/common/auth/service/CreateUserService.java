@@ -2,8 +2,8 @@ package com.naz_desu.sumato.common.auth.service;
 
 import com.naz_desu.sumato.common.SumatoUserDao;
 import com.naz_desu.sumato.common.auth.model.PostSignUpRequest;
-import com.naz_desu.sumato.entity.SumatoUser;
-import com.naz_desu.sumato.entity.userProfile.UserProfile;
+import com.naz_desu.sumato.common.entity.SumatoUser;
+import com.naz_desu.sumato.common.entity.userProfile.UserProfile;
 import com.naz_desu.sumato.api.student.kanji.profile.dao.SumatoUserProfileDao;
 import com.naz_desu.sumato.api.student.kanji.srs.NewKanjiService;
 import jakarta.transaction.Transactional;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static com.naz_desu.sumato.constants.SumatoConstants.MAX_NEW_KANJI_DAILY;
+import static com.naz_desu.sumato.common.constants.SumatoConstants.MAX_NEW_KANJI_DAILY;
 
 @Service
 @RequiredArgsConstructor
