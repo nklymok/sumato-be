@@ -24,4 +24,11 @@ public class KanjiReviewService {
                 .toList();
     }
 
+    public Instant getNextReviewAt(Long userId) {
+        return userKanjiDao.getNextReviewAt(userId, Instant.now());
+    }
+
+    public Instant getNextStudyAt(Long userId) {
+        return userKanjiDao.getNextStudyAt(userId, Instant.now());
+    }
 }

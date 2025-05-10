@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "sumato_user_kanji_review")
+@Table(name = "user_kanji_review")
 public class KanjiReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,5 +25,8 @@ public class KanjiReview {
     private Instant reviewedAt;
     private Instant nextReviewAt;
     private Integer dangoEarned;
+    private Double easiness;
+    private Integer interval;
+    private Integer repetitions;
 }
 

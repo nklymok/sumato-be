@@ -17,7 +17,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "sumato_chat_history")
+@Table(name = "chat_history")
 public class ChatHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

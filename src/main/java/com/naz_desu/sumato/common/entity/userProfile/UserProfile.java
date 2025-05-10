@@ -6,11 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "sumato_user_profile")
+@Table(name = "user_profile")
 public class UserProfile {
 
     @Id
@@ -21,5 +23,6 @@ public class UserProfile {
     private String name;
     private Integer jlptLevel;
     private Integer dangoCount;
+    private Instant lastUnlockAt;
 
 }

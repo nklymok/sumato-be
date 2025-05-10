@@ -1,14 +1,14 @@
 package com.naz_desu.sumato.api.student.kanji.answer;
 
+import com.naz_desu.sumato.api.student.kanji.dao.ReviewLogDao;
 import com.naz_desu.sumato.api.student.kanji.dto.KanjiAnswer;
 import com.naz_desu.sumato.api.student.kanji.entity.Kanji;
-import com.naz_desu.sumato.api.student.kanji.entity.KanjiStats;
 import com.naz_desu.sumato.api.student.kanji.answer.api_client.SM2ApiClient;
-import com.naz_desu.sumato.api.student.kanji.answer.dto.KanjiStatsDTO;
+import com.naz_desu.sumato.api.student.kanji.answer.dto.SM2Data;
 import com.naz_desu.sumato.api.student.kanji.answer.dto.SM2Answer;
 import com.naz_desu.sumato.api.student.kanji.dao.UserKanjiDao;
-import com.naz_desu.sumato.api.student.kanji.dao.UserKanjiStatsDao;
 import com.naz_desu.sumato.api.student.kanji.entity.KanjiReview;
+import com.naz_desu.sumato.api.student.kanji.entity.ReviewLog;
 import com.naz_desu.sumato.common.exception.SumatoException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,49 +23,36 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class KanjiAnswerService {
     private final UserKanjiDao userKanjiDao;
-    private final UserKanjiStatsDao userKanjiStatsDao;
+    private final ReviewLogDao reviewLogDao;
     private final SM2ApiClient sm2ApiClient;
 
     @Transactional
-    public Boolean checkAnswer(Long userId, KanjiAnswer kanjiAnswer) {
-        Kanji kanji = userKanjiDao.getKanjiFromReview(userId, kanjiAnswer.reviewId());
-        boolean isCorrect = checkMeanings(kanjiAnswer, kanji);
-        userKanjiDao.findLatestKanjiStats(userId, kanji.getId())
-                .ifPresentOrElse(
-                        (kanjiStats) -> createKanjiStats(isCorrect, kanjiStats),
-                        () -> createNewKanjiStats(kanjiAnswer, isCorrect)
-                );
+    public Boolean checkAnswer(KanjiAnswer kanjiAnswer) {
+        KanjiReview kanjiReview = userKanjiDao.findById(kanjiAnswer.reviewId())
+                .orElseThrow(() -> new SumatoException("Kanji Review with id {} not found", kanjiAnswer.reviewId()));
+        boolean isCorrect = checkMeanings(kanjiAnswer, kanjiReview.getKanji());
+        SM2Data newStats = calculateSM2Metadata(kanjiReview, isCorrect);
+        addReviewLog(kanjiReview, isCorrect);
+        updateKanjiReview(newStats, kanjiAnswer.reviewId());
         return isCorrect;
+
     }
 
-    private void createNewKanjiStats(KanjiAnswer kanjiAnswer, boolean isCorrect) {
-        KanjiStatsDTO newStats = sm2ApiClient.sendAnswer(new SM2Answer(isCorrect));
-        KanjiStats newKanjiStats = new KanjiStats();
-        newKanjiStats.setEasiness(newStats.easiness());
-        newKanjiStats.setInterval(newStats.interval());
-        newKanjiStats.setRepetitions(newStats.repetitions());
-        KanjiReview proxyReview = new KanjiReview();
-        proxyReview.setId(kanjiAnswer.reviewId());
-        newKanjiStats.setKanjiReview(proxyReview);
-        userKanjiStatsDao.save(newKanjiStats);
-        updateOrCreateReview(isCorrect, newStats, kanjiAnswer.reviewId());
+    private void addReviewLog(KanjiReview kanjiReview, boolean isCorrect) {
+        ReviewLog reviewLog = new ReviewLog()
+                .setReview(kanjiReview)
+                .setIsCorrect(isCorrect)
+                .setReviewedAt(Instant.now());
+        reviewLogDao.save(reviewLog);
     }
 
-    private void createKanjiStats(boolean isCorrect, KanjiStats kanjiStats) {
-        KanjiStatsDTO newStats = sm2ApiClient.sendAnswer(
-                new SM2Answer(isCorrect,
-                        kanjiStats.getEasiness(),
-                        kanjiStats.getInterval(),
-                        kanjiStats.getRepetitions()
-                )
+    private SM2Data calculateSM2Metadata(KanjiReview review, boolean isCorrect) {
+        SM2Answer answer = new SM2Answer(isCorrect,
+                review.getEasiness(),
+                review.getInterval(),
+                review.getRepetitions()
         );
-        KanjiStats newKanjiStats = new KanjiStats();
-        newKanjiStats.setEasiness(newStats.easiness());
-        newKanjiStats.setInterval(newStats.interval());
-        newKanjiStats.setRepetitions(newStats.repetitions());
-        newKanjiStats.setKanjiReview(kanjiStats.getKanjiReview());
-        userKanjiStatsDao.save(newKanjiStats);
-        updateOrCreateReview(isCorrect, newStats, kanjiStats.getKanjiReview().getId());
+        return sm2ApiClient.sendAnswer(answer);
     }
 
     private boolean checkMeanings(KanjiAnswer kanjiAnswer, Kanji kanji) {
@@ -74,23 +61,17 @@ public class KanjiAnswerService {
                 .anyMatch(meaning -> meaning.equalsIgnoreCase(kanjiAnswer.answer()));
     }
 
-    private void updateOrCreateReview(boolean isCorrectAnswer, KanjiStatsDTO kanjiStatsDTO, long reviewId) {
-        KanjiReview oldReview = userKanjiDao.findById(reviewId)
+    private void updateKanjiReview(SM2Data sm2data, long reviewId) {
+        KanjiReview kanjiReview = userKanjiDao.findById(reviewId)
                 .orElseThrow(() -> new SumatoException("Review with id {} not found", reviewId));
-        if (isCorrectAnswer) {
-            oldReview.setDangoEarned(oldReview.isFirstReview() ? 2 : 1);
-            KanjiReview kanjiReview = new KanjiReview();
-            kanjiReview.setKanji(oldReview.getKanji());
-            kanjiReview.setUser(oldReview.getUser());
-            kanjiReview.setReviewedAt(Instant.now());
-            kanjiReview.setNextReviewAt(kanjiStatsDTO.reviewDate());
-            kanjiReview.setFirstReview(false);
-            userKanjiDao.save(kanjiReview);
-        } else {
-            oldReview.setReviewedAt(Instant.now());
-            oldReview.setNextReviewAt(kanjiStatsDTO.reviewDate());
-        }
-        userKanjiDao.save(oldReview);
+        kanjiReview.setReviewedAt(Instant.now());
+        kanjiReview.setNextReviewAt(sm2data.reviewDate());
+        kanjiReview.setFirstReview(false);
+        kanjiReview.setInterval(sm2data.interval());
+        kanjiReview.setEasiness(sm2data.easiness());
+        kanjiReview.setRepetitions(sm2data.repetitions());
+        userKanjiDao.save(kanjiReview);
+        userKanjiDao.save(kanjiReview);
     }
 
 }

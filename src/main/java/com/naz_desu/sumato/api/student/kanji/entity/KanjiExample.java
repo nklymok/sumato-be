@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "sumato_kanji_example")
+@Table(name = "kanji_example")
 public class KanjiExample {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

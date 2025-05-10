@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Repository
@@ -18,9 +19,14 @@ public interface SumatoUserProfileDao extends JpaRepository<UserProfile, Long> {
             "up.name as name," +
             "up.dangoCount as dangoCount," +
             "up.jlptLevel as level," +
-            "up.user.publicId as publicId  " +
+            "up.user.publicId as publicId, " +
+            "up.lastUnlockAt as lastUnlockAt " +
             "FROM UserProfile up WHERE up.user.id = :userId")
     Optional<UserProfileDTO> findDtoByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("UPDATE UserProfile up SET up.lastUnlockAt = :lastUnlockAt WHERE up.user.id = :userId")
+    void updateLastUnlockAt(@Param("userId") Long userId, @Param("lastUnlockAt") Instant lastUnlockAt);
 
     @Modifying
     @Query("UPDATE UserProfile up SET up.name = :name WHERE up.user.id = :userId")

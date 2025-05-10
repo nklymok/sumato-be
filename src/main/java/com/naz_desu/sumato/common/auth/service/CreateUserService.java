@@ -39,6 +39,7 @@ public class CreateUserService {
         profile.setName("Gakusei #" + user.getPublicId().substring(0, 4));
         profile.setJlptLevel(5);
         profile.setDangoCount(0);
+        profile.setLastUnlockAt(user.getRegisteredAt());
         return profile;
     }
 
