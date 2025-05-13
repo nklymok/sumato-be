@@ -41,10 +41,11 @@ public class NewKanjiService {
                 .atStartOfDay(kyiv)
                 .toInstant();
 
+        int leftToStudy = userKanjiDao.getKanjiToStudyCount(userId, now);
         int todayUnlocked = userKanjiDao.countUnlocks(userId, startOfDay, now);
         int mastered = userKanjiDao.countMasteredSince(userId, profile.getLastUnlockAt(), 1);
 
-        int canUnlock = Math.min(mastered, MAX_NEW_KANJI_DAILY - todayUnlocked);
+        int canUnlock = Math.max(Math.min(mastered, MAX_NEW_KANJI_DAILY - todayUnlocked) - leftToStudy, 0);
         if (canUnlock <= 0) {
             log.info("User {} has no kanji to unlock today. Today unlocked: {}, mastereed since unlock: {}, can unlock: {}", userId, todayUnlocked, mastered, canUnlock);
             return;
