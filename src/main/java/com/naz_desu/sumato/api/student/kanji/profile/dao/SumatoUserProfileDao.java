@@ -30,5 +30,9 @@ public interface SumatoUserProfileDao extends JpaRepository<UserProfile, Long> {
 
     @Modifying
     @Query("UPDATE UserProfile up SET up.name = :name WHERE up.user.id = :userId")
-    void updateName(Long userId, String name);
+    void updateName(@Param("userId") Long userId, @Param("name") String name);
+
+    @Modifying
+    @Query("UPDATE UserProfile up SET up.jlptLevel = :level WHERE up.user.id = :userId")
+    void updateLevel(@Param("userId") Long userId, @Param("level") Integer level);
 }

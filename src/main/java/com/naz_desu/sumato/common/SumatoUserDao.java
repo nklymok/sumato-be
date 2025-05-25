@@ -33,7 +33,8 @@ public interface SumatoUserDao extends JpaRepository<SumatoUser, Long> {
         "FROM SumatoUser u " +
         "JOIN UserProfile up ON up.user = u " +
         "LEFT JOIN KanjiReview cr ON cr.user = u AND cr.isFirstReview = TRUE AND cr.nextReviewAt BETWEEN :from AND :to " +
-        "GROUP BY u.id, up.name"
+        "GROUP BY u.id, up.name " +
+        "ORDER BY COUNT(cr) DESC"
     )
     List<GlobalStat> findGlobalStats(@Param("from") Instant from, @Param("to") Instant to);
 }
